@@ -16,6 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
+
 var app = {
 	// Application Constructor
 	initialize: function () {
@@ -48,9 +50,28 @@ var app = {
 		console.log('Received Event: ' + id);
 	},
 	takePhoto: function () {
-		navigator.camera.getPicture(
-			(success) => {
-				console.log(success, 'camera file');
+		  navigator.camera.getPicture(
+			(file) => {
+				console.log(file, 'camera file');
+				if (file.indexOf("content://") > -1) {
+					console.log("content //", file);
+					window.FilePath.resolveNativePath(file, (success) => {
+					  console.log(success, "content");
+					  window.resolveLocalFileSystemURL(success, (fileEntry) => {
+						console.log(fileEntry, "fileEntry");
+						fileEntry.file((finalFile) => {
+						  console.log(finalFile, "resolve");
+						});
+					  });
+					});
+				} else {
+					window.resolveLocalFileSystemURL(file, (fileEntry) => {
+						console.log(fileEntry, "fileEntry");
+						fileEntry.file((finalFile) => {
+						  console.log(finalFile, "resolve");
+						});
+					  });
+				}
 			},
 			(err) => {
 				console.log(ere);
@@ -58,8 +79,9 @@ var app = {
 			{
 				quality: 50,
 				destinationType: Camera.DestinationType.FILE_URI,
-				mediaType: Camera.MediaType.PICTURE,
-				sourceType: Camera.PictureSourceType.CAMERA,
+				mediaType: Camera.MediaType.ALLMEDIA,
+				sourceType: Camera.PictureSourceType.SAVEDPHOTOALBUM,
+				saveToPhotoAlbum: false,
 			},
 		);
 	},
